@@ -1,11 +1,11 @@
 import { defineConfig } from '@apps-in-toss/web-framework/config';
 
 export default defineConfig({
-  appName: 'dujjonku-app',
+  appName: 'dujjonkumap',
   brand: {
-    displayName: 'dujjonku-app', // 화면에 노출될 앱의 한글 이름으로 바꿔주세요.
-    primaryColor: '#3182F6', // 화면에 노출될 앱의 기본 색상으로 바꿔주세요.
-    icon: '', // 화면에 노출될 앱의 아이콘 이미지 주소로 바꿔주세요.
+    displayName: '두쫀쿠맵', // 화면에 노출될 앱의 한글 이름
+    primaryColor: '#FFB300', // 두쫀쿠 골드 컬러
+    icon: '/dujjonku.png', // 두쫀쿠 아이콘
   },
   web: {
     host: 'localhost',
