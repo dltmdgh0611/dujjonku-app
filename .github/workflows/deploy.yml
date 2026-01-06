@@ -1,0 +1,79 @@
+name: 🍪 크롤링 & GitHub Pages 배포
+
+on:
+  schedule:
+    # 10분마다 실행
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # 수동 실행 가능
+  push:
+    branches:
+      - main  # main 브랜치 푸시 시에도 실행
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시에 하나의 배포만 허용
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Python 의존성 설치
+        run: pip install requests
+
+      - name: 🍪 크롤러 실행
+        run: |
+          python crawler/crawl.py
+          echo "✅ 크롤링 완료!"
+          ls -lh public/stores.json
+          echo "📊 stores.json 미리보기:"
+          head -c 200 public/stores.json
+          echo ""
+
+      - name: 📦 Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: 📥 Node 의존성 설치
+        run: yarn install --frozen-lockfile
+
+      - name: 🏗️ Vite 빌드
+        run: yarn build
+
+      - name: 📋 stores.json을 dist로 복사
+        run: cp public/stores.json dist/stores.json
+
+      - name: 🔧 GitHub Pages 설정
+        uses: actions/configure-pages@v4
+
+      - name: 📦 artifact 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: 🚀 GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: ✅ 완료
+        run: |
+          echo "✅ 배포 완료!"
+          echo "📅 실행 시간: $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M:%S KST')"
+          echo "🌐 사이트 URL: https://dltmdgh0611.github.io/dujjonku-app/"
+          echo "📊 데이터 URL: https://dltmdgh0611.github.io/dujjonku-app/stores.json"
