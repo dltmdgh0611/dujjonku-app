@@ -1,0 +1,20 @@
+{
+  "name": "dujjonku-map",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "granite dev",
+    "build": "granite build",
+    "preview": "vite preview",
+    "crawl": "python crawler/crawl.py",
+    "deploy": "ait deploy"
+  },
+  "dependencies": {
+    "@apps-in-toss/web-framework": "^1.7.0",
+    "@types/navermaps": "^3.7.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  }
+}

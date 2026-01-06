@@ -1,0 +1,60 @@
+name: Update Stores Data
+
+on:
+  schedule:
+    # 10분마다 실행 (GitHub Actions는 최소 5분 간격)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # 수동 실행도 가능
+  push:
+    branches:
+      - main  # main 브랜치 푸시 시에도 실행
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # GitHub Pages 배포 권한
+    
+    steps:
+      - name: 📥 체크아웃
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 📦 의존성 설치
+        run: |
+          pip install requests
+      
+      - name: 🍪 크롤러 실행
+        run: |
+          python crawler/crawl.py
+          echo "크롤링 완료!"
+          ls -lh public/stores.json
+      
+      - name: 📊 데이터 확인
+        run: |
+          echo "=== stores.json 내용 미리보기 ==="
+          head -c 200 public/stores.json
+          echo ""
+          echo "=== 파일 크기 ==="
+          wc -c public/stores.json
+      
+      - name: 🚀 GitHub Pages 배포
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true  # 히스토리 없이 배포 (용량 절약)
+          commit_message: '🍪 Update stores data - ${{ github.event.head_commit.message }}'
+      
+      - name: ✅ 완료 알림
+        run: |
+          echo "✅ 크롤링 및 배포 완료!"
+          echo "📅 실행 시간: $(date)"
+          echo "🌐 배포 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/stores.json"
+
