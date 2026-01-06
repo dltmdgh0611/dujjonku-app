@@ -6,16 +6,21 @@ import type { Cafe, StoreData } from './types'
 import { GoogleAdMob } from '@apps-in-toss/web-framework'
 
 // ============ 설정 ============
-// GitHub Pages URL (환경 변수로 관리)
-// 로컬 개발: /stores.json
-// 배포: GitHub Pages URL에서 실시간 데이터
-const GITHUB_USERNAME = import.meta.env.VITE_GITHUB_USERNAME || 'YOUR_USERNAME'
+// 데이터 URL 설정
+// 1. GitHub Pages가 설정되어 있으면 그것 사용 (자동 업데이트)
+// 2. 없으면 로컬 stores.json 사용
+const GITHUB_USERNAME = import.meta.env.VITE_GITHUB_USERNAME || ''
 const REPO_NAME = import.meta.env.VITE_REPO_NAME || 'dujjonku-app'
-const DATA_URL = import.meta.env.MODE === 'production' 
+
+// GitHub Pages URL이 제대로 설정되어 있는지 확인
+const hasGitHubPages = GITHUB_USERNAME && GITHUB_USERNAME !== 'YOUR_USERNAME' && GITHUB_USERNAME !== ''
+
+const DATA_URL = hasGitHubPages
   ? `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/stores.json`
-  : '/stores.json'
+  : './stores.json' // 로컬 파일 (빌드에 포함됨)
 
 console.log('📊 데이터 URL:', DATA_URL)
+console.log('🌐 GitHub Pages:', hasGitHubPages ? '활성화 ✅' : '비활성화 (로컬 데이터 사용)')
 
 // 광고 그룹 ID (실제 값으로 교체 필요)
 const AD_GROUP_ID = import.meta.env.VITE_AD_GROUP_ID || '<YOUR_AD_GROUP_ID>'
