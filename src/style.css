@@ -1,3 +1,5 @@
+/* TDS 스타일 호환 - 기본 스타일만 정의 */
+
 * {
   margin: 0;
   padding: 0;
@@ -5,187 +7,34 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-:root {
-  --green: #4CAF50;
-  --red: #E53935;
-  --cream: #FFF9E6;
-  --brown: #5D4037;
-  --gold: #FFB300;
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 body {
-  font-family: 'Noto Sans KR', sans-serif;
-  background: var(--cream);
-  overflow: hidden;
-  height: 100vh;
-  height: 100dvh;
+  font-family: 'Toss Product Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* 지도 */
-#map {
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-}
-
-/* 커스텀 마커 */
+/* 네이버 지도 마커 스타일 */
 .custom-marker {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.custom-marker:active {
-  transform: scale(1.1);
 }
 
 .marker-icon {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  width: 40px;
+  height: 40px;
 }
 
-.marker-count {
-  margin-top: 2px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 14px;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  min-width: 30px;
-  text-align: center;
-}
-
-.marker-count.available {
-  background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
-}
-
-.marker-count.soldout {
-  background: linear-gradient(135deg, #EF5350 0%, #E53935 100%);
-  opacity: 0.6;
-}
-
-/* 하단 정보 패널 */
-.info-panel {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: white;
-  padding: 20px;
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-}
-
-.info-panel.show {
-  transform: translateY(0);
-}
-
-.info-panel-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.info-panel-name {
-  font-weight: 700;
-  font-size: 18px;
-  color: var(--brown);
-  text-align: center;
-}
-
-.info-panel-address {
-  font-size: 14px;
-  color: #999;
-  text-align: center;
-}
-
-.info-panel-btn {
+/* 지도 컨테이너 */
+#map {
   width: 100%;
-  padding: 14px;
-  background: var(--green);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.info-panel-btn:active {
-  transform: scale(0.98);
-  opacity: 0.8;
-}
-
-/* 로딩 */
-.loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  background: var(--cream);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.loading.hidden {
-  display: none;
-}
-
-.loading-icon {
-  font-size: 48px;
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.loading-text {
-  font-family: 'Gaegu', cursive;
-  font-size: 20px;
-  color: var(--brown);
-}
-
-/* 에러 */
-.error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.error-icon {
-  font-size: 48px;
-}
-
-.error-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--brown);
-}
-
-.error-desc {
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-  white-space: pre-line;
+  height: 100%;
 }
