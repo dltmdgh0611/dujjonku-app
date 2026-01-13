@@ -16,8 +16,8 @@ KST = timezone(timedelta(hours=9))
 # 모바일 User-Agent (naver.me 리졸브용)
 MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
 
-def convert_to_mobile_url(url):
-    """URL을 모바일 버전으로 변환"""
+def convert_to_mobile_url(url, retries=2):
+    """URL을 모바일 버전으로 변환 (재시도 포함)"""
     if not url:
         return url
     
@@ -33,21 +33,24 @@ def convert_to_mobile_url(url):
     
     # naver.me 단축 URL은 리졸브해서 모바일 URL로 변환
     if 'naver.me' in url:
-        try:
-            # HEAD 요청으로 리다이렉트 위치 확인 (모바일 UA 사용)
-            res = requests.head(url, allow_redirects=True, timeout=5, headers={
-                'User-Agent': MOBILE_UA
-            })
-            final_url = res.url
-            # 최종 URL을 모바일로 변환
-            if 'place.naver.com' in final_url and 'm.place.naver.com' not in final_url:
-                final_url = final_url.replace('place.naver.com', 'm.place.naver.com')
-            if 'map.naver.com' in final_url and 'm.map.naver.com' not in final_url:
-                final_url = final_url.replace('map.naver.com', 'm.map.naver.com')
-            return final_url
-        except Exception:
-            # 실패하면 원본 URL 반환
-            return url
+        for attempt in range(retries):
+            try:
+                # HEAD 요청으로 리다이렉트 위치 확인 (모바일 UA 사용)
+                res = requests.head(url, allow_redirects=True, timeout=8, headers={
+                    'User-Agent': MOBILE_UA
+                })
+                final_url = res.url
+                # 최종 URL을 모바일로 변환
+                if 'place.naver.com' in final_url and 'm.place.naver.com' not in final_url:
+                    final_url = final_url.replace('place.naver.com', 'm.place.naver.com')
+                if 'map.naver.com' in final_url and 'm.map.naver.com' not in final_url:
+                    final_url = final_url.replace('map.naver.com', 'm.map.naver.com')
+                return final_url
+            except Exception:
+                if attempt < retries - 1:
+                    continue  # 재시도
+                # 최종 실패하면 원본 URL 반환
+                return url
     
     return url
 

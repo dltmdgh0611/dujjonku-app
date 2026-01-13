@@ -134,39 +134,44 @@ function MapPinIcon() {
 
 // 네이버 지도 모바일 앱/웹으로 강제 이동 (PC 버전 절대 불가)
 function openNaverMap(url: string) {
-  let targetUrl = url
+  // 모든 URL을 모바일 버전으로 강제 변환
+  let mobileUrl = url
+    .replace('place.naver.com', 'm.place.naver.com')
+    .replace('map.naver.com', 'm.map.naver.com')
+    // 이미 m.이 붙은 경우 중복 방지
+    .replace('m.m.place', 'm.place')
+    .replace('m.m.map', 'm.map')
   
-  // 1. PC map.naver.com -> 모바일 m.map.naver.com으로 변환
-  if (url.includes('map.naver.com') && !url.includes('m.map.naver.com')) {
-    targetUrl = url.replace('map.naver.com', 'm.map.naver.com')
-  }
-  
-  // 2. PC place.naver.com -> 모바일 m.place.naver.com으로 변환
-  if (url.includes('place.naver.com') && !url.includes('m.place.naver.com')) {
-    targetUrl = url.replace('place.naver.com', 'm.place.naver.com')
-  }
-  
-  // 3. naver.me 단축 URL인 경우 - 네이버 지도 앱 딥링크로 시도
+  // naver.me 단축 URL인 경우 - 무조건 새 창에서 열기 (앱에서 처리하도록)
   if (url.includes('naver.me')) {
-    // 네이버 지도 앱 스키마로 먼저 시도 (앱이 설치된 경우 앱으로 이동)
-    const appScheme = `nmap://place?url=${encodeURIComponent(url)}&appname=com.dujjonku.map`
+    // Intent URL 사용 (안드로이드에서 앱 없으면 웹으로 폴백)
+    const isAndroid = /android/i.test(navigator.userAgent)
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
     
-    // 앱 열기 시도 후 실패하면 모바일 웹으로 폴백
-    const startTime = Date.now()
-    window.location.href = appScheme
+    if (isAndroid) {
+      // 안드로이드: Intent URL로 네이버 지도 앱 열기, 없으면 웹으로 폴백
+      const intentUrl = `intent://place?url=${encodeURIComponent(url)}#Intent;scheme=nmap;package=com.nhn.android.nmap;S.browser_fallback_url=${encodeURIComponent(url)};end`
+      window.location.href = intentUrl
+      return
+    }
     
-    // 앱이 열리지 않으면 (500ms 후에도 페이지에 있으면) 모바일 웹으로 이동
-    setTimeout(() => {
-      if (Date.now() - startTime < 2000) {
-        // 모바일 place 페이지로 리다이렉트 시도
+    if (isIOS) {
+      // iOS: 앱 스키마 시도 후 웹으로 폴백
+      const appScheme = `nmap://place?url=${encodeURIComponent(url)}`
+      window.location.href = appScheme
+      setTimeout(() => {
         window.location.href = url
-      }
-    }, 500)
+      }, 500)
+      return
+    }
+    
+    // 기타 환경 (PC 에뮬레이터 등): 그냥 열기
+    window.location.href = url
     return
   }
   
-  // 4. 모바일 URL로 강제 리다이렉트
-  window.location.href = targetUrl
+  // 모바일 URL로 이동
+  window.location.href = mobileUrl
 }
 
 interface ListScreenProps {
