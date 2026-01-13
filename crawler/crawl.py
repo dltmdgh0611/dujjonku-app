@@ -7,10 +7,79 @@ import requests
 import json
 import re
 from datetime import datetime, timezone, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 URL = "https://www.dubaicookiemap.com"
 OUTPUT = "public/stores.json"
 KST = timezone(timedelta(hours=9))
+
+# 모바일 User-Agent (naver.me 리졸브용)
+MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'
+
+def convert_to_mobile_url(url):
+    """URL을 모바일 버전으로 변환"""
+    if not url:
+        return url
+    
+    # 이미 모바일 URL이면 그대로 반환
+    if 'm.place.naver.com' in url or 'm.map.naver.com' in url:
+        return url
+    
+    # PC URL을 모바일로 변환
+    if 'place.naver.com' in url:
+        return url.replace('place.naver.com', 'm.place.naver.com')
+    if 'map.naver.com' in url:
+        return url.replace('map.naver.com', 'm.map.naver.com')
+    
+    # naver.me 단축 URL은 리졸브해서 모바일 URL로 변환
+    if 'naver.me' in url:
+        try:
+            # HEAD 요청으로 리다이렉트 위치 확인 (모바일 UA 사용)
+            res = requests.head(url, allow_redirects=True, timeout=5, headers={
+                'User-Agent': MOBILE_UA
+            })
+            final_url = res.url
+            # 최종 URL을 모바일로 변환
+            if 'place.naver.com' in final_url and 'm.place.naver.com' not in final_url:
+                final_url = final_url.replace('place.naver.com', 'm.place.naver.com')
+            if 'map.naver.com' in final_url and 'm.map.naver.com' not in final_url:
+                final_url = final_url.replace('map.naver.com', 'm.map.naver.com')
+            return final_url
+        except Exception:
+            # 실패하면 원본 URL 반환
+            return url
+    
+    return url
+
+def convert_urls_batch(cafes):
+    """모든 카페 URL을 병렬로 모바일 버전으로 변환"""
+    print("🔄 URL을 모바일 버전으로 변환 중...")
+    
+    results = {}
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        future_to_idx = {
+            executor.submit(convert_to_mobile_url, cafe.get('naver_place_url', '')): idx 
+            for idx, cafe in enumerate(cafes)
+        }
+        
+        done_count = 0
+        for future in as_completed(future_to_idx):
+            idx = future_to_idx[future]
+            try:
+                results[idx] = future.result()
+            except Exception:
+                results[idx] = cafes[idx].get('naver_place_url', '')
+            
+            done_count += 1
+            if done_count % 100 == 0:
+                print(f"  ... {done_count}/{len(cafes)} 완료")
+    
+    # 결과 적용
+    for idx, url in results.items():
+        cafes[idx]['naver_place_url'] = url
+    
+    print(f"✅ URL 변환 완료")
+    return cafes
 
 def crawl():
     print("🍪 크롤링 시작...")
@@ -55,6 +124,10 @@ def crawl():
     try:
         cafes = json.loads(json_str)
         print(f"✅ {len(cafes)}개 카페 추출")
+        
+        # URL을 모바일 버전으로 변환
+        cafes = convert_urls_batch(cafes)
+        
         return process_cafes(cafes)
     except Exception as e:
         print(f"❌ JSON 파싱 실패: {e}")

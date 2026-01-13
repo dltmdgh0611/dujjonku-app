@@ -171,10 +171,10 @@ function openNaverMap(url: string) {
 
 interface ListScreenProps {
   stores: CafeWithDistance[]
-  onShowMap: () => void
+  onShowMapWithAd: () => void
 }
 
-export function ListScreen({ stores, onShowMap }: ListScreenProps) {
+export function ListScreen({ stores, onShowMapWithAd }: ListScreenProps) {
   return (
     <div css={containerStyle}>
       <div css={topSectionStyle}>
@@ -200,8 +200,8 @@ export function ListScreen({ stores, onShowMap }: ListScreenProps) {
         ))}
       </div>
       <div css={fixedBottomStyle}>
-        <button css={buttonStyle} onClick={onShowMap}>
-          더 많은 두쫀쿠 찾아보기
+        <button css={buttonStyle} onClick={onShowMapWithAd}>
+          📺 광고보고 더 많은 두쫀쿠 찾기
         </button>
       </div>
     </div>

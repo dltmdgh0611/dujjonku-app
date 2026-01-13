@@ -154,10 +154,9 @@ interface MapScreenProps {
   userLocation: { lat: number; lng: number } | null
   updateTime: string
   onBack: () => void
-  onMarkerClick?: () => void
 }
 
-export function MapScreen({ cafes, userLocation, updateTime, onBack, onMarkerClick }: MapScreenProps) {
+export function MapScreen({ cafes, userLocation, updateTime, onBack }: MapScreenProps) {
   const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null)
   const mapRef = useRef<naver.maps.Map | null>(null)
 
@@ -222,7 +221,6 @@ export function MapScreen({ cafes, userLocation, updateTime, onBack, onMarkerCli
 
         naver.maps.Event.addListener(marker, 'click', () => {
           setSelectedCafe(cafe)
-          onMarkerClick?.()
         })
       })
 

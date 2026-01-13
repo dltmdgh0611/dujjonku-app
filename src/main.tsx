@@ -148,8 +148,6 @@ function App() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [updateTime, setUpdateTime] = useState('--:--')
   const isInitialized = useRef(false)
-  const listAdShown = useRef(false)
-  const mapClickCount = useRef(0)
 
   const loadData = useCallback(async () => {
     try {
@@ -244,28 +242,16 @@ function App() {
     return stores
   }, [])
 
-  // 리스트 화면 진입 시 1초 후 광고 표시
+  // 리스트 화면 진입
   const handleListEnter = useCallback(() => {
     setViewState('list')
-    
-    // 리스트 화면 진입 시 한 번만 광고 표시
-    if (!listAdShown.current) {
-      setTimeout(() => {
-        showAd()
-        listAdShown.current = true
-      }, 1000)
-    }
   }, [])
 
-  // 지도에서 마커 클릭 시 카운트 증가 및 광고 표시
-  const handleMapMarkerClick = useCallback(() => {
-    mapClickCount.current += 1
-    console.log(`🗺️ 마커 클릭 횟수: ${mapClickCount.current}`)
-    
-    // 4번째 클릭마다 광고 표시
-    if (mapClickCount.current % 4 === 0) {
-      showAd()
-    }
+  // 광고 보고 지도로 이동
+  const handleShowMapWithAd = useCallback(() => {
+    showAd(() => {
+      setViewState('map')
+    })
   }, [])
 
   // 초기화 - 한 번만 실행
@@ -321,7 +307,7 @@ function App() {
       {viewState === 'list' && (
         <ListScreen 
           stores={nearbyStores} 
-          onShowMap={() => setViewState('map')} 
+          onShowMapWithAd={handleShowMapWithAd} 
         />
       )}
       {viewState === 'map' && (
@@ -330,7 +316,6 @@ function App() {
           userLocation={userLocation}
           updateTime={updateTime}
           onBack={() => setViewState('list')}
-          onMarkerClick={handleMapMarkerClick}
         />
       )}
     </>
