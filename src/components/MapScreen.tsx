@@ -206,7 +206,7 @@ export function MapScreen({ cafes, userLocation, updateTime, onBack }: MapScreen
                 align-items: center;
                 cursor: pointer;
               ">
-                <img src="./dujjonku.png" style="width: 40px; height: 40px;" alt="쿠키" />
+                <img src="/dujjonku.png" style="width: 40px; height: 40px;" alt="쿠키" />
                 <div style="
                   padding: 2px 6px;
                   background: ${isAvailable ? '#3182F6' : '#9E9E9E'};
